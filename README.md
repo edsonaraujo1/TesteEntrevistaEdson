@@ -16,7 +16,7 @@ Servidor IIS<br>
 1 - Fazer o clone do projeto<br>
 2 - Aprir Usando Visual Studio 2019<br>
 3 - Atualizar os pacotes Nugets<br>
-4 - Sistema com Acesso ao Banco em Nuvem SQLSERVER Windows
+4 - Sistema com Acesso ao Banco em Nuvem SQLSERVER Windows<br>
 5 - Configura o banco de dados no arquivo appsettings.json, conforme seu banco:<br>
 
 "ConnectionStrings": {
