@@ -26,7 +26,8 @@ Servidor IIS<br>
 5 - No Console do Gerenciador de Pacotes entre com PM> Add-Migration 00000000000000_CreateIdentitySchema.cs<br>
 6 - Crie um novo usuário para que as tabelas possam ser geradas<br><br>
 
-link do Sistema para Teste: https://www.utyum.com.br/Seguro
+link do Sistema para Teste: https://www.utyum.com.br/Seguro/App
+link da API via Swagger para Teste: https://www.utyum.com.br/Seguro/Api
 
 Usuario: admin@net.com
 Senha: Bt123Senha#
