@@ -29,7 +29,7 @@ Servidor IIS<br>
 
 link do Sistema para Teste: https://www.utyum.com.br/Seguro/App
 
-link da API via Swagger para Teste: https://www.utyum.com.br/Seguro/Api
+link da API via Swagger para Teste: https://www.utyum.com.br/Seguro/Api/api/Seguro
 
 Usuario: admin@net.com
 Senha: Bt123Senha#
