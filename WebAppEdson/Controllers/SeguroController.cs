@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Rotativa.AspNetCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using WebAppEdson.Data;
 using WebAppEdson.Models;
 
@@ -39,17 +39,17 @@ namespace WebAppEdson.Controllers
 
             var Seguro = new List<Seguro>();
 
-            var url = "https://localhost:44359/api/Seguro";
+            var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
             HttpClient client = new HttpClient();
             var response = client.GetAsync(url).Result;
-            
+
             if (response.IsSuccessStatusCode)
             {
                 var results = response.Content.ReadAsStringAsync().Result;
 
                 Seguro = JsonConvert.DeserializeObject<Seguro[]>(results).ToList();
             }
-                        
+
             if (!String.IsNullOrEmpty(busca))
             {
                 Seguro = Seguro.FindAll(i => i.Cliente.Contains(busca) || i.CPF.Contains(busca) || i.Veiculo.Contains(busca) || i.Marca.Contains(busca) || i.Modelo.Contains(busca));
@@ -63,7 +63,7 @@ namespace WebAppEdson.Controllers
             string busca = Session.Busc_1;
             var Seguro = new List<Seguro>();
 
-            var url = "https://localhost:44359/api/Seguro";
+            var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
             HttpClient client = new HttpClient();
             var response = client.GetAsync(url).Result;
 
@@ -94,7 +94,7 @@ namespace WebAppEdson.Controllers
 
             var Seguro = new Seguro();
 
-            var url = "https://localhost:44359/api/Seguro/";
+            var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
             HttpClient client = new HttpClient();
             var response = client.GetAsync(url + id).Result;
 
@@ -104,7 +104,7 @@ namespace WebAppEdson.Controllers
 
                 Seguro = JsonConvert.DeserializeObject<Seguro>(results);
             }
-                        
+
             if (Seguro == null)
             {
                 return NotFound();
@@ -128,7 +128,7 @@ namespace WebAppEdson.Controllers
         {
             if (ModelState.IsValid)
             {
-                var url = "https://localhost:44359/api/Seguro/";
+                var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
 
                 using (var cliente = new HttpClient())
                 {
@@ -142,7 +142,7 @@ namespace WebAppEdson.Controllers
                         Seguro = JsonConvert.DeserializeObject<Seguro>(retorno.Result);
                     }
                 }
-                
+
             }
             return RedirectToAction(nameof(Index));
         }
@@ -157,7 +157,7 @@ namespace WebAppEdson.Controllers
 
             var Seguro = new Seguro();
 
-            var url = "https://localhost:44359/api/Seguro/";
+            var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
             HttpClient client = new HttpClient();
             var response = client.GetAsync(url + id).Result;
 
@@ -191,7 +191,7 @@ namespace WebAppEdson.Controllers
                 var seguro = new Seguro();
                 try
                 {
-                    var url = "https://localhost:44359/api/Seguro/";
+                    var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
 
                     using (var cliente = new HttpClient())
                     {
@@ -218,7 +218,7 @@ namespace WebAppEdson.Controllers
                         throw;
                     }
                 }
-                
+
             }
             return RedirectToAction(nameof(Index));
         }
@@ -233,7 +233,7 @@ namespace WebAppEdson.Controllers
 
             var Seguro = new Seguro();
 
-            var url = "https://localhost:44359/api/Seguro/";
+            var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
             HttpClient client = new HttpClient();
             var response = client.GetAsync(url + id).Result;
 
@@ -258,7 +258,7 @@ namespace WebAppEdson.Controllers
         {
             var Seguro = new Seguro();
 
-            var url = "https://localhost:44359/api/Seguro/";
+            var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
             HttpClient client = new HttpClient();
             var response = client.DeleteAsync(url + id).Result;
 
@@ -268,7 +268,7 @@ namespace WebAppEdson.Controllers
 
                 Seguro = JsonConvert.DeserializeObject<Seguro>(results);
             }
-                        
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -276,7 +276,7 @@ namespace WebAppEdson.Controllers
         {
             var Seguro = new List<Seguro>();
 
-            var url = "https://localhost:44359/api/Seguro/";
+            var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
             HttpClient client = new HttpClient();
             var response = client.GetAsync(url + id).Result;
 
