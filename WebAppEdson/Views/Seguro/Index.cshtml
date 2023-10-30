@@ -1,0 +1,94 @@
+﻿@model IEnumerable<WebAppEdson.Models.Seguro>
+@using System.Globalization;
+@{ ViewData["Title"] = "Index";
+    string style = "";
+    double entrada = 0;
+    double saida = 0;
+    double saldo = 0;
+    CultureInfo br = new CultureInfo("pt-BR"); }
+
+<h1>Cadastro de Seguro</h1>
+
+<p>
+    <a asp-action="Create">+ Incluir Seguro</a>
+</p>
+
+<div class="jumbotron" style="padding: 1rem 2rem;">
+    <form method="GET" asp-action="Index">
+
+        <input type="search" placeholder="Digite sua Pesquisa" value="@ViewData["Seguro"]" name="busca" style="width:300px;" />
+        <input type="submit" value="Busca" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">Mostrar Todos</a>
+        <a asp-action="RotativaPDF" target='_blank' class="btn btn-success">Gerar PDF</a>
+
+
+    </form>
+</div>
+
+<table class="table  table-bordered table-condensed">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Cliente)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CPF)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Idade)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Veiculo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Marca)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Modelo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ValorVeiculo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ValorSeguro)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Cliente)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CPF)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Idade)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Veiculo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Marca)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Modelo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ValorVeiculo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ValorSeguro)
+                </td>
+                <td width="30%">
+                    <a asp-action="Edit" asp-route-id="@item.id" class="btn btn-warning btn-sm">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.id" class="btn btn-info btn-sm">Ver</a>
+                    <a asp-action="Delete" asp-route-id="@item.id" class="btn btn-danger btn-sm">Del</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
