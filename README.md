@@ -1,4 +1,4 @@
-# Sistema Simples Fluxo Caixa
+# Sistema Simples Gestão de Seguros
 Sistema desenvolvido por Edson de Araujo
 Cadastro Simples com ASP.NET CORE 2.2 C# EntityFramework para entrevistas
 
