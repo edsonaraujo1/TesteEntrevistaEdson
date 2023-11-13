@@ -21,7 +21,7 @@ Servidor IIS<br>
 
 6 - Rodar a Aplicação em modo de Varios projetos Cmd (webApi) Cmd (webApp)<br>
 7 - No Console do Gerenciador de Pacotes entre com PM> Add-Migration 00000000000000_CreateIdentitySchema.cs<br>
-8 - Crie um novo usuário para que as tabelas possam ser geradas<br><br><br>
+8 - Crie um novo usuário para que as tabelas possam ser geradas<br><br>
 
 Ultima Atualização Abiitado Origem Cruzada Cors.
 
@@ -30,5 +30,6 @@ link do Sistema para Teste: https://www.utyum.com.br/Seguro/NetApi
 
 <br>
 link da API via Swagger para Teste: https://www.utyum.com.br/Seguro/Api/api/Seguro
-<br><br>
+<br>
+
 Usuario: admin@net.com  Senha: Bt123Senha#
