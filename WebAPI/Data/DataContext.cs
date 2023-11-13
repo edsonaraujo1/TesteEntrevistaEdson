@@ -1,13 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using WebApi.Models;
 
-namespace WebAPI.Context
+namespace WebApi.Data
 {
-    public class AppDbContext : DbContext
+    public class DataContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options)
+        public DataContext(DbContextOptions<DataContext> options)
             : base(options)
         {
         }
@@ -22,7 +26,7 @@ namespace WebAPI.Context
             .Build();
 
             optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+
         }
-                
     }
 }

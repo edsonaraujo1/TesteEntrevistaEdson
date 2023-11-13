@@ -47,6 +47,15 @@ namespace WebAppEdson
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
+            });
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
@@ -61,6 +70,8 @@ namespace WebAppEdson
         [Obsolete]
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, Microsoft.AspNetCore.Hosting.IHostingEnvironment env2)
         {
+            app.UseCors("CorsPolicy");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

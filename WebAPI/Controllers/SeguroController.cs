@@ -1,20 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebAPI.Context;
-using WebAPI.Models;
+using WebApi.Data;
+using WebApi.Models;
 
-namespace WebAPI.Controllers
+namespace WebApi.Controllers
 {
+    [EnableCors("CorsPolicy")]
     [Route("api/[controller]")]
     [ApiController]
     public class SeguroController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly DataContext _context;
 
-        public SeguroController(AppDbContext context)
+        public SeguroController(DataContext context)
         {
             _context = context;
         }
@@ -41,7 +43,6 @@ namespace WebAPI.Controllers
         }
 
         // PUT: api/Seguro/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutSeguro(int id, Seguro seguro)
         {
@@ -76,7 +77,6 @@ namespace WebAPI.Controllers
         }
 
         // POST: api/Seguro
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Seguro>> PostSeguro(Seguro seguro)
         {
@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
 
         // DELETE: api/Seguro/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSeguro(int id)
+        public async Task<ActionResult<Seguro>> DeleteSeguro(int id)
         {
             var seguro = await _context.Seguros.FindAsync(id);
             if (seguro == null)
@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
             _context.Seguros.Remove(seguro);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return seguro;
         }
 
         private bool SeguroExists(int id)

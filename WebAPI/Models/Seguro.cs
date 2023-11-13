@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WebAPI.Models
+namespace WebApi.Models
 {
     [Table("Seguro")]
     public class Seguro

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -15,9 +16,12 @@ using WebAppEdson.Models;
 namespace WebAppEdson.Controllers
 {
     [Authorize]
+    [EnableCors("CorsPolicy")]
     public class SeguroController : Controller
     {
         const string SessionNome = "Buscar";
+        const string URLApi = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
+        //const string URLApi = "http://localhost:26579/api/Seguro/";
         private readonly ApplicationDbContext _context;
 
         public SeguroController(ApplicationDbContext context)
@@ -32,38 +36,48 @@ namespace WebAppEdson.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> index(string busca)
+        public ActionResult index(string busca)
         {
             ViewData["Seguro"] = busca;
             Session.Busc_1 = busca;
 
             var Seguro = new List<Seguro>();
 
-            var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
-            HttpClient client = new HttpClient();
-            var response = client.GetAsync(url).Result;
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var results = response.Content.ReadAsStringAsync().Result;
+                var url = URLApi;
+                HttpClient client = new HttpClient();
+                var response = client.GetAsync(url).Result;
 
-                Seguro = JsonConvert.DeserializeObject<Seguro[]>(results).ToList();
+                if (response.IsSuccessStatusCode)
+                {
+                    var results = response.Content.ReadAsStringAsync().Result;
+
+                    Seguro = JsonConvert.DeserializeObject<Seguro[]>(results).ToList();
+                }
+
+                if (!String.IsNullOrEmpty(busca))
+                {
+                    Seguro = Seguro.FindAll(i => i.Cliente.Contains(busca) || i.CPF.Contains(busca) || i.Veiculo.Contains(busca) || i.Marca.Contains(busca) || i.Modelo.Contains(busca));
+                }
+                return View(Seguro);
+            }
+            catch (Exception ex)
+            {
+                ViewData["error"] = ex.Message;
+                return View();
             }
 
-            if (!String.IsNullOrEmpty(busca))
-            {
-                Seguro = Seguro.FindAll(i => i.Cliente.Contains(busca) || i.CPF.Contains(busca) || i.Veiculo.Contains(busca) || i.Marca.Contains(busca) || i.Modelo.Contains(busca));
-            }
-            return View(Seguro);
+
         }
 
         [HttpGet]
-        public async Task<IActionResult> RotativaPDF()
+        public IActionResult RotativaPDF()
         {
             string busca = Session.Busc_1;
             var Seguro = new List<Seguro>();
 
-            var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
+            var url = URLApi;
             HttpClient client = new HttpClient();
             var response = client.GetAsync(url).Result;
 
@@ -85,7 +99,7 @@ namespace WebAppEdson.Controllers
         }
 
         // GET: Seguro/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Details(int? id)
         {
             if (id == null)
             {
@@ -94,7 +108,7 @@ namespace WebAppEdson.Controllers
 
             var Seguro = new Seguro();
 
-            var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
+            var url = URLApi;
             HttpClient client = new HttpClient();
             var response = client.GetAsync(url + id).Result;
 
@@ -124,11 +138,11 @@ namespace WebAppEdson.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Seguro Seguro)
+        public IActionResult Create(Seguro Seguro)
         {
             if (ModelState.IsValid)
             {
-                var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
+                var url = URLApi;
 
                 using (var cliente = new HttpClient())
                 {
@@ -148,7 +162,7 @@ namespace WebAppEdson.Controllers
         }
 
         // GET: Seguro/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public IActionResult Edit(int? id)
         {
             if (id == null)
             {
@@ -157,7 +171,7 @@ namespace WebAppEdson.Controllers
 
             var Seguro = new Seguro();
 
-            var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
+            var url = URLApi;
             HttpClient client = new HttpClient();
             var response = client.GetAsync(url + id).Result;
 
@@ -191,7 +205,7 @@ namespace WebAppEdson.Controllers
                 var seguro = new Seguro();
                 try
                 {
-                    var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
+                    var url = URLApi;
 
                     using (var cliente = new HttpClient())
                     {
@@ -224,7 +238,7 @@ namespace WebAppEdson.Controllers
         }
 
         // GET: Seguro/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public IActionResult Delete(int? id)
         {
             if (id == null)
             {
@@ -233,7 +247,7 @@ namespace WebAppEdson.Controllers
 
             var Seguro = new Seguro();
 
-            var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
+            var url = URLApi;
             HttpClient client = new HttpClient();
             var response = client.GetAsync(url + id).Result;
 
@@ -254,11 +268,11 @@ namespace WebAppEdson.Controllers
         // POST: Seguro/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(int id)
         {
             var Seguro = new Seguro();
 
-            var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
+            var url = URLApi;
             HttpClient client = new HttpClient();
             var response = client.DeleteAsync(url + id).Result;
 
@@ -276,7 +290,7 @@ namespace WebAppEdson.Controllers
         {
             var Seguro = new List<Seguro>();
 
-            var url = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
+            var url = URLApi;
             HttpClient client = new HttpClient();
             var response = client.GetAsync(url + id).Result;
 

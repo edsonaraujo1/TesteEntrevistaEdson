@@ -1,73 +1,95 @@
 ﻿@model IEnumerable<WebAppEdson.Models.Seguro>
 
 @{ Layout = null;
-                ViewData["Title"] = "Index";
-                string style = "";
-                double entrada = 0;
-                double saida = 0;
-                double saldo = 0; }
+    ViewData["Title"] = "Index";
+    string style = "";
+    double entrada = 0;
+    double saida = 0;
+    double saldo = 0; }
 
-<h1>Relatório de Cadastro Seguro</h1>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Relatório - Gestão Seguros</title>
 
-<table  class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Cliente)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CPF)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Idade)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Veiculo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Marca)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Modelo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ValorVeiculo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ValorSeguro)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute"
+              crossorigin="anonymous"
+              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
+    </environment>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <h1>Relatório de Cadastro Seguro</h1>
+
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Cliente)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CPF)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Idade)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Veiculo)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Marca)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Modelo)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ValorVeiculo)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ValorSeguro)
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.Cliente)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CPF)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Idade)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Veiculo)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Marca)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Modelo)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ValorVeiculo)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ValorSeguro)
+                </th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Cliente)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CPF)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Idade)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Veiculo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Marca)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Modelo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ValorVeiculo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ValorSeguro)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+ </body>
+</html>
