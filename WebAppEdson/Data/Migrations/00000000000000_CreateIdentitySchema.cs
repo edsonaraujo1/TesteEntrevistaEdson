@@ -9,6 +9,26 @@ namespace WebAppEdson.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+               name: "Seguro",
+               columns: table => new
+               {
+                   Id = table.Column<int>(nullable: false)
+                       .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                   Cliente = table.Column<string>(maxLength: 100, nullable: true),
+                   CPF = table.Column<string>(maxLength: 50, nullable: true),
+                   Idade = table.Column<int>(maxLength: 4, nullable: true),
+                   Veiculo = table.Column<string>(maxLength: 50, nullable: true),
+                   Marca = table.Column<string>(maxLength: 50, nullable: true),
+                   Modelo = table.Column<string>(maxLength: 50, nullable: true),
+                   ValorVeiculo = table.Column<float>(nullable: true),
+                   ValorSeguro = table.Column<float>(nullable: true)
+               },
+               constraints: table =>
+               {
+                   table.PrimaryKey("PK_Seguro", x => x.Id);
+               });
+
+            migrationBuilder.CreateTable(
                name: "Caixa",
                columns: table => new
                {
@@ -213,6 +233,12 @@ namespace WebAppEdson.Data.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Seguro");
+
+            migrationBuilder.DropTable(
+               name: "Caixa");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 

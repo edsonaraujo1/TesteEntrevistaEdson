@@ -184,6 +184,33 @@ namespace WebAppEdson.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("WebAppEdson.Models.Seguro", b =>
+            {
+                b.Property<int>("id")
+                    .ValueGeneratedOnAdd()
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                b.Property<string>("Cliente");
+
+                b.Property<string>("CPF");
+
+                b.Property<string>("Idade");
+
+                b.Property<string>("Veiculo");
+
+                b.Property<string>("Marca");
+
+                b.Property<string>("Modelo");
+
+                b.Property<float>("ValorVeiculo");
+
+                b.Property<float>("ValorSeguro");
+
+                b.HasKey("id");
+
+                b.ToTable("Seguro");
+            });
+
             modelBuilder.Entity("WebAppEdson.Models.Caixa", b =>
                 {
                     b.Property<int>("Id")
