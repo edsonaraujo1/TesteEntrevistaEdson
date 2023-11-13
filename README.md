@@ -25,11 +25,11 @@ Servidor IIS<br>
 
 Ultima Atualização Abiitado Origem Cruzada Cors.
 
-<br>
+<br><br>
 link do Sistema para Teste: https://www.utyum.com.br/Seguro/NetApi
 
-<br>
+<br><br>
 link da API via Swagger para Teste: https://www.utyum.com.br/Seguro/Api/api/Seguro
-<br>
+<br><br>
 
 Usuario: admin@net.com  Senha: Bt123Senha#
