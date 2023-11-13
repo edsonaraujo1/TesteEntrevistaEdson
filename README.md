@@ -23,13 +23,10 @@ Servidor IIS<br>
 7 - No Console do Gerenciador de Pacotes entre com PM> Add-Migration 00000000000000_CreateIdentitySchema.cs<br>
 8 - Crie um novo usuário para que as tabelas possam ser geradas<br><br>
 
-Ultima Atualização Abiitado Origem Cruzada Cors.
+Ultima Atualização Habilitado Origem Cruzada Cors.
 
-<br><br>
 link do Sistema para Teste: https://www.utyum.com.br/Seguro/NetApi
-
 <br><br>
 link da API via Swagger para Teste: https://www.utyum.com.br/Seguro/Api/api/Seguro
 <br><br>
-
 Usuario: admin@net.com  Senha: Bt123Senha#
