@@ -17,7 +17,7 @@ Servidor IIS<br>
 4 - Sistema com Acesso ao Banco em Nuvem SQLSERVER Windows<br>
 5 - Configura o banco de dados no arquivo appsettings.json, conforme seu banco:<br>
 
-"ConnectionStrings": { "DefaultConnection": "Data Source = localhost; Initial Catalog = Seguro; Uid = sa; Password = 1234; MultipleActiveResultSets=true; Pooling=true; Min Pool Size=0; Max Pool Size=250; Connect Timeout=30;" },<br><br>
+"ConnectionStrings": { "DefaultConnection": "Data Source = localhost; Initial Catalog = Seguro; Uid = sa; Password = 1234; MultipleActiveResultSets=true; Pooling=true; Min Pool Size=0; Max Pool Size=250; Connect Timeout=30;" },<br>
 
 6 - Rodar a Aplicação em modo de Varios projetos Cmd (webApi) Cmd (webApp)<br>
 7 - No Console do Gerenciador de Pacotes entre com PM> Add-Migration 00000000000000_CreateIdentitySchema.cs<br>
@@ -25,10 +25,10 @@ Servidor IIS<br>
 
 Ultima Atualização Abiitado Origem Cruzada Cors.
 
-<br><br>
+<br>
 link do Sistema para Teste: https://www.utyum.com.br/Seguro/NetApi
 
-<br><br>
+<br>
 link da API via Swagger para Teste: https://www.utyum.com.br/Seguro/Api/api/Seguro
 <br><br>
 Usuario: admin@net.com  Senha: Bt123Senha#
