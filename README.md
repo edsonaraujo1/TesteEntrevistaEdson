@@ -25,7 +25,7 @@ Servidor IIS<br>
 
 Ultima Atualização Habilitado Origem Cruzada Cors.
 
-link do Sistema para Teste: https://www.utyum.com.br/Seguro/NetApi
+link do Sistema para Teste: https://www.utyum.com.br/NetApi
 <br><br>
 link da API via Swagger para Teste: https://www.utyum.com.br/Seguro/Api/api/Seguro
 <br><br>
