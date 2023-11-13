@@ -2,7 +2,7 @@
 Sistema desenvolvido por Edson de Araujo
 Cadastro Simples com ASP.NET CORE 2.2 C# EntityFramework com consumo de API para entrevistas
 
-# Modo de Instalção e Utilização
+# Modo de Instalação e Utilização
 
 Requisitos Basicos:<br>
 Visual Studio 2019<br>
