@@ -88,8 +88,21 @@
                         @Html.DisplayFor(modelItem => item.ValorSeguro)
                     </td>
                 </tr>
-            }
+                saldo = saldo + item.ValorSeguro;
+             }
+
         </tbody>
     </table>
- </body>
+    <hr />
+    <div>
+        <table>
+            <tr>
+                <td style="color:green">
+                    Total do Saldo:  @saldo.ToString("N2")
+                </td>
+
+            </tr>
+        </table>
+    </div>
+</body>
 </html>

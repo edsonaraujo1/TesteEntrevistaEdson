@@ -1,114 +1,96 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebApi.Data;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using WebApi.DTOs;
+using WebApi.Interfaces;
 using WebApi.Models;
 
 namespace WebApi.Controllers
 {
     [EnableCors("CorsPolicy")]
-    [Route("api/[controller]")]
     [ApiController]
-    public class SeguroController : ControllerBase
+    [Route("api/[controller]")]
+    public class SeguroController : Controller
     {
-        private readonly DataContext _context;
-
-        public SeguroController(DataContext context)
+        private readonly ISeguroRepository _seguroRepositories;
+        private readonly IMapper _mapper;
+        public SeguroController(ISeguroRepository seguroRepositories, IMapper mapper)
         {
-            _context = context;
+            _mapper = mapper;
+            _seguroRepositories = seguroRepositories;
         }
-
-        // GET: api/Seguro
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Seguro>>> GetSeguros()
         {
-            return await _context.Seguros.ToListAsync();
+            //var seguro = await _seguroRepositories.SelecionarTodos();
+            //var seguroDTO = _mapper.Map<IEnumerable<SeguroDTO>>(seguro);
+
+            return Ok(await _seguroRepositories.SelecionarTodos());
         }
-
-        // GET: api/Seguro/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Seguro>> GetSeguro(int id)
-        {
-            var seguro = await _context.Seguros.FindAsync(id);
-
-            if (seguro == null)
-            {
-                return NotFound();
-            }
-
-            return seguro;
-        }
-
-        // PUT: api/Seguro/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutSeguro(int id, Seguro seguro)
-        {
-            if (id != seguro.id)
-            {
-                return BadRequest();
-            }
-
-            CalculaValorSeguro calculo = new CalculaValorSeguro();
-            double com_pre = calculo.CalculaSeguro(seguro.ValorVeiculo);
-            seguro.ValorSeguro = com_pre;
-
-            _context.Entry(seguro).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SeguroExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Seguro
         [HttpPost]
-        public async Task<ActionResult<Seguro>> PostSeguro(Seguro seguro)
+        public async Task<ActionResult> CadastrarSeguro(Seguro seguro)
         {
             CalculaValorSeguro calculo = new CalculaValorSeguro();
             double com_pre = calculo.CalculaSeguro(seguro.ValorVeiculo);
             seguro.ValorSeguro = com_pre;
 
-            _context.Seguros.Add(seguro);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetSeguro", new { id = seguro.id }, seguro);
+            _seguroRepositories.Incluir(seguro);
+            if (await _seguroRepositories.SaveAllAsync())
+            {
+                return Ok("Registro Salvo com sucesso!");
+            }
+            return BadRequest("Ocorreu um erro ao salvar registro.");
         }
-
-        // DELETE: api/Seguro/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Seguro>> DeleteSeguro(int id)
+        [HttpPut]
+        public async Task<ActionResult> AlterarSeguro(Seguro seguro)
         {
-            var seguro = await _context.Seguros.FindAsync(id);
+            CalculaValorSeguro calculo = new CalculaValorSeguro();
+            double com_pre = calculo.CalculaSeguro(seguro.ValorVeiculo);
+            seguro.ValorSeguro = com_pre;
+
+            _seguroRepositories.Alterar(seguro);
+            if (await _seguroRepositories.SaveAllAsync())
+            {
+                return Ok("Registro Alterado com sucesso!");
+            }
+            return BadRequest("Ocorreu um erro ao alterar registro.");
+        }
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> ExcluirSeguro(int id)
+        {
+            var seguro = await _seguroRepositories.SelecionarByPk(id);
             if (seguro == null)
             {
-                return NotFound();
+                return NotFound("Registro não encontrdo!");
             }
-
-            _context.Seguros.Remove(seguro);
-            await _context.SaveChangesAsync();
-
-            return seguro;
+            _seguroRepositories.Excluir(seguro);
+            if (await _seguroRepositories.SaveAllAsync())
+            {
+                return Ok("Registro Excluido com sucesso!");
+            }
+            return BadRequest("Ocorreu um erro ao excluir o registro.");
         }
-
-        private bool SeguroExists(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult> SelecionarSeguro(int id)
         {
-            return _context.Seguros.Any(e => e.id == id);
+            var seguro = await _seguroRepositories.SelecionarByPk(id);
+            if (seguro == null)
+            {
+                return NotFound("Registro não encontrdo!");
+            }
+            //SeguroDTO seguroDTO = new SeguroDTO
+            //{
+            //    Cliente = seguro.Cliente,
+            //    Marca = seguro.Marca,
+            //    Veiculo = seguro.Veiculo,
+            //    Modelo = seguro.Modelo,
+            //    ValorSeguro = seguro.ValorSeguro,
+            //    ValorVeiculo = seguro.ValorVeiculo
+            //};
+            //var seguroDTO = _mapper.Map<SeguroDTO>(seguro);
+            return Ok(seguro);
         }
 
         public class CalculaValorSeguro

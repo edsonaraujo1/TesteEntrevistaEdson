@@ -20,8 +20,8 @@ namespace WebAppEdson.Controllers
     public class SeguroController : Controller
     {
         const string SessionNome = "Buscar";
-        const string URLApi = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
-        //const string URLApi = "http://localhost:26579/api/Seguro/";
+        //const string URLApi = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
+        const string URLApi = "https://localhost:44386/api/Seguro/";
         private readonly ApplicationDbContext _context;
 
         public SeguroController(ApplicationDbContext context)
@@ -153,7 +153,6 @@ namespace WebAppEdson.Controllers
                     if (resposta.Result.IsSuccessStatusCode)
                     {
                         var retorno = resposta.Result.Content.ReadAsStringAsync();
-                        Seguro = JsonConvert.DeserializeObject<Seguro>(retorno.Result);
                     }
                 }
 
@@ -193,16 +192,10 @@ namespace WebAppEdson.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Seguro Seguro)
+        public async Task<IActionResult> Edit(Seguro Seguro)
         {
-            if (id != Seguro.id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
-                var seguro = new Seguro();
                 try
                 {
                     var url = URLApi;
@@ -211,12 +204,11 @@ namespace WebAppEdson.Controllers
                     {
                         string jsonObjeto = JsonConvert.SerializeObject(Seguro);
                         var content = new StringContent(jsonObjeto, Encoding.UTF8, "application/json");
-                        var resposta = cliente.PutAsync(url + id, content);
+                        var resposta = cliente.PutAsync(url, content);
                         resposta.Wait();
                         if (resposta.Result.IsSuccessStatusCode)
                         {
                             var retorno = resposta.Result.Content.ReadAsStringAsync();
-                            Seguro = JsonConvert.DeserializeObject<Seguro>(retorno.Result);
                         }
                     }
 
@@ -270,8 +262,6 @@ namespace WebAppEdson.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var Seguro = new Seguro();
-
             var url = URLApi;
             HttpClient client = new HttpClient();
             var response = client.DeleteAsync(url + id).Result;
@@ -279,8 +269,6 @@ namespace WebAppEdson.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var results = response.Content.ReadAsStringAsync().Result;
-
-                Seguro = JsonConvert.DeserializeObject<Seguro>(results);
             }
 
             return RedirectToAction(nameof(Index));
@@ -322,7 +310,6 @@ namespace WebAppEdson.Controllers
                 return valorfinal;
             }
         }
-
 
     }
 }
