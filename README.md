@@ -20,7 +20,7 @@ Servidor IIS<br>
 "ConnectionStrings": { "DefaultConnection": "Data Source = localhost; Initial Catalog = Seguro; Uid = sa; Password = 1234; MultipleActiveResultSets=true; Pooling=true; Min Pool Size=0; Max Pool Size=250; Connect Timeout=30;" },<br>
 
 6 - Rodar a Aplicação em modo de Varios projetos Cmd (webApi) Cmd (webApp)<br>
-7 - No Console do Gerenciador de Pacotes entre com PM> Add-Migration 00000000000000_CreateIdentitySchema.cs<br>
+7 - No Console do Gerenciador de Pacotes entre com PM> Add-Migration 00000000000000_CreateIdentitySchema.cs ou pule direto para o passo 8<br>
 8 - Crie um novo usuário para que as tabelas possam ser geradas<br><br>
 
 Ultima Atualização Habilitado Origem Cruzada Cors.
