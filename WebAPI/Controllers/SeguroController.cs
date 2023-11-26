@@ -1,15 +1,16 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using WebApi.DTOs;
 using WebApi.Interfaces;
 using WebApi.Models;
 
 namespace WebApi.Controllers
 {
     [EnableCors("CorsPolicy")]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class SeguroController : Controller
@@ -24,9 +25,6 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Seguro>>> GetSeguros()
         {
-            //var seguro = await _seguroRepositories.SelecionarTodos();
-            //var seguroDTO = _mapper.Map<IEnumerable<SeguroDTO>>(seguro);
-
             return Ok(await _seguroRepositories.SelecionarTodos());
         }
         [HttpPost]

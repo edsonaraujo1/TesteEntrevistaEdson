@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using WebApi.Models;
+using WebAPI.Models;
 
 namespace WebAPI.Context
 {
@@ -13,6 +14,7 @@ namespace WebAPI.Context
         }
 
         public DbSet<Seguro> Seguros { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

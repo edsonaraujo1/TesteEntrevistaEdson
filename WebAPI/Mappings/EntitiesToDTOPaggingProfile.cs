@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using WebApi.DTOs;
 using WebApi.Models;
+using WebAPI.DTOs;
+using WebAPI.Models;
 
 namespace WebApi.Mappings
 {
@@ -9,6 +11,7 @@ namespace WebApi.Mappings
         public EntitiesToDTOPaggingProfile()
         {
             CreateMap<Seguro, SeguroDTO>().ReverseMap();
+            CreateMap<Usuario, UsuarioDTO>().ReverseMap();
         }
     }
 }

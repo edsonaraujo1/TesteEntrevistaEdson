@@ -1,6 +1,6 @@
 # Sistema Simples Gestão de Seguros
 Sistema desenvolvido por Edson de Araujo
-Cadastro Simples com ASP.NET CORE 2.2 C# EntityFramework com consumo de API para entrevistas
+Cadastro Simples com ASP.NET CORE 2.2 C# EntityFramework com consumo de API seguro com autenticação JWT para entrevista tecnica.
 
 # Modo de Instalação e Utilização
 
@@ -24,6 +24,7 @@ Servidor IIS<br>
 8 - Crie um novo usuário para que as tabelas possam ser geradas<br><br>
 
 Ultima Atualização Habilitado Origem Cruzada Cors.
+       Protegendo as APIs de Acesso não autorizado. 
 
 link do Sistema para Teste: https://www.utyum.com.br/NetApi
 <br><br>

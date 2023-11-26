@@ -2,12 +2,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Rotativa.AspNetCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using WebAppEdson.Data;
@@ -20,8 +24,8 @@ namespace WebAppEdson.Controllers
     public class SeguroController : Controller
     {
         const string SessionNome = "Buscar";
-        //const string URLApi = "https://www.utyum.com.br/Seguro/Api/api/Seguro/";
-        const string URLApi = "https://localhost:44386/api/Seguro/";
+        //const string URLApi = "https://www.utyum.com.br/Seguro/Api/api/";
+        const string URLApi = "https://localhost:44386/api/";
         private readonly ApplicationDbContext _context;
 
         public SeguroController(ApplicationDbContext context)
@@ -36,7 +40,7 @@ namespace WebAppEdson.Controllers
         }
 
         [HttpGet]
-        public ActionResult index(string busca)
+        public ActionResult Index(string busca)
         {
             ViewData["Seguro"] = busca;
             Session.Busc_1 = busca;
@@ -46,21 +50,65 @@ namespace WebAppEdson.Controllers
             try
             {
                 var url = URLApi;
-                HttpClient client = new HttpClient();
-                var response = client.GetAsync(url).Result;
 
-                if (response.IsSuccessStatusCode)
+                // Envio da requisição a fim de autenticar
+                // e obter o token de acesso
+                var builder = new ConfigurationBuilder()
+                 .SetBasePath(Directory.GetCurrentDirectory())
+                 .AddJsonFile($"appsettings.json");
+                var config = builder.Build();
+
+                using (var client = new HttpClient())
                 {
-                    var results = response.Content.ReadAsStringAsync().Result;
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("application/json"));
 
-                    Seguro = JsonConvert.DeserializeObject<Seguro[]>(results).ToList();
-                }
+                    HttpResponseMessage respToken = client.PostAsync(
+                       URLApi + "Auth", new StringContent(
+                            JsonConvert.SerializeObject(new
+                            {
+                                Email = config.GetSection("API_Access:UserID").Value,
+                                PasswordHash = config.GetSection("API_Access:UserPWD").Value,
+                                AccessKey = config.GetSection("API_Access:AccessKey").Value
+                            }), Encoding.UTF8, "application/json")).Result;
 
-                if (!String.IsNullOrEmpty(busca))
-                {
-                    Seguro = Seguro.FindAll(i => i.Cliente.Contains(busca) || i.CPF.Contains(busca) || i.Veiculo.Contains(busca) || i.Marca.Contains(busca) || i.Modelo.Contains(busca));
+                    string conteudo =
+                        respToken.Content.ReadAsStringAsync().Result;
+                    Console.WriteLine(conteudo);
+
+                    if (respToken.StatusCode == HttpStatusCode.OK)
+                    {
+                        TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
+                        if (token.Token != null)
+                        {
+                            // Associar o token aos headers do objeto
+                            // do tipo HttpClient
+                            client.DefaultRequestHeaders.Authorization =
+                                new AuthenticationHeaderValue("Bearer", token.Token);
+
+                            //HttpClient client = new HttpClient();
+                            var response = client.GetAsync(url + "Seguro/").Result;
+
+                            if (response.IsSuccessStatusCode)
+                            {
+                                var results = response.Content.ReadAsStringAsync().Result;
+
+                                Seguro = JsonConvert.DeserializeObject<Seguro[]>(results).ToList();
+                            }
+
+                            if (!String.IsNullOrEmpty(busca))
+                            {
+                                Seguro = Seguro.FindAll(i => i.Cliente.Contains(busca) || i.CPF.Contains(busca) || i.Veiculo.Contains(busca) || i.Marca.Contains(busca) || i.Modelo.Contains(busca));
+                            }
+                            return View(Seguro);
+                        }
+                    }
+
+
                 }
                 return View(Seguro);
+
             }
             catch (Exception ex)
             {
@@ -78,24 +126,68 @@ namespace WebAppEdson.Controllers
             var Seguro = new List<Seguro>();
 
             var url = URLApi;
-            HttpClient client = new HttpClient();
-            var response = client.GetAsync(url).Result;
 
-            if (response.IsSuccessStatusCode)
+            // Envio da requisição a fim de autenticar
+            // e obter o token de acesso
+            var builder = new ConfigurationBuilder()
+             .SetBasePath(Directory.GetCurrentDirectory())
+             .AddJsonFile($"appsettings.json");
+            var config = builder.Build();
+
+            using (var client = new HttpClient())
             {
-                var results = response.Content.ReadAsStringAsync().Result;
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
 
-                Seguro = JsonConvert.DeserializeObject<Seguro[]>(results).ToList();
+                HttpResponseMessage respToken = client.PostAsync(
+                   URLApi + "Auth", new StringContent(
+                        JsonConvert.SerializeObject(new
+                        {
+                            Email = config.GetSection("API_Access:UserID").Value,
+                            PasswordHash = config.GetSection("API_Access:UserPWD").Value,
+                            AccessKey = config.GetSection("API_Access:AccessKey").Value
+                        }), Encoding.UTF8, "application/json")).Result;
+
+                string conteudo =
+                    respToken.Content.ReadAsStringAsync().Result;
+                Console.WriteLine(conteudo);
+
+                if (respToken.StatusCode == HttpStatusCode.OK)
+                {
+                    TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
+                    if (token.Token != null)
+                    {
+                        client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Bearer", token.Token);
+
+                        //Conteudo Inicio
+
+                        var response = client.GetAsync(url + "Seguro/").Result;
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var results = response.Content.ReadAsStringAsync().Result;
+
+                            Seguro = JsonConvert.DeserializeObject<Seguro[]>(results).ToList();
+                        }
+
+                        if (!String.IsNullOrEmpty(busca))
+                        {
+                            Seguro = Seguro.FindAll(i => i.Cliente.Contains(busca) || i.CPF.Contains(busca) || i.Veiculo.Contains(busca) || i.Marca.Contains(busca) || i.Modelo.Contains(busca));
+                        }
+
+                        var pdf = new ViewAsPdf(Seguro);
+
+                        //Conteudo Fim
+                        return pdf;
+
+                    }
+                }
+
             }
+            return Ok();
 
-            if (!String.IsNullOrEmpty(busca))
-            {
-                Seguro = Seguro.FindAll(i => i.Cliente.Contains(busca) || i.CPF.Contains(busca) || i.Veiculo.Contains(busca) || i.Marca.Contains(busca) || i.Modelo.Contains(busca));
-            }
-
-            var pdf = new ViewAsPdf(Seguro);
-
-            return pdf;
         }
 
         // GET: Seguro/Details/5
@@ -109,21 +201,63 @@ namespace WebAppEdson.Controllers
             var Seguro = new Seguro();
 
             var url = URLApi;
-            HttpClient client = new HttpClient();
-            var response = client.GetAsync(url + id).Result;
 
-            if (response.IsSuccessStatusCode)
+            // Envio da requisição a fim de autenticar
+            // e obter o token de acesso
+            var builder = new ConfigurationBuilder()
+             .SetBasePath(Directory.GetCurrentDirectory())
+             .AddJsonFile($"appsettings.json");
+            var config = builder.Build();
+
+            using (var client = new HttpClient())
             {
-                var results = response.Content.ReadAsStringAsync().Result;
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
 
-                Seguro = JsonConvert.DeserializeObject<Seguro>(results);
+                HttpResponseMessage respToken = client.PostAsync(
+                   URLApi + "Auth", new StringContent(
+                        JsonConvert.SerializeObject(new
+                        {
+                            Email = config.GetSection("API_Access:UserID").Value,
+                            PasswordHash = config.GetSection("API_Access:UserPWD").Value,
+                            AccessKey = config.GetSection("API_Access:AccessKey").Value
+                        }), Encoding.UTF8, "application/json")).Result;
+
+                string conteudo =
+                    respToken.Content.ReadAsStringAsync().Result;
+                Console.WriteLine(conteudo);
+
+                if (respToken.StatusCode == HttpStatusCode.OK)
+                {
+                    TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
+                    if (token.Token != null)
+                    {
+                        client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Bearer", token.Token);
+
+                        //Conteudo Inicio
+
+                        var response = client.GetAsync(url + "Seguro/" + id).Result;
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var results = response.Content.ReadAsStringAsync().Result;
+
+                            Seguro = JsonConvert.DeserializeObject<Seguro>(results);
+                        }
+
+                        if (Seguro == null)
+                        {
+                            return NotFound();
+                        }
+
+                        //Conteudo Fim
+                    }
+                }
+
             }
-
-            if (Seguro == null)
-            {
-                return NotFound();
-            }
-
+            
             return View(Seguro);
         }
 
@@ -144,16 +278,55 @@ namespace WebAppEdson.Controllers
             {
                 var url = URLApi;
 
-                using (var cliente = new HttpClient())
+                // Envio da requisição a fim de autenticar
+                // e obter o token de acesso
+                var builder = new ConfigurationBuilder()
+                 .SetBasePath(Directory.GetCurrentDirectory())
+                 .AddJsonFile($"appsettings.json");
+                var config = builder.Build();
+
+                using (var client = new HttpClient())
                 {
-                    string jsonObjeto = JsonConvert.SerializeObject(Seguro);
-                    var content = new StringContent(jsonObjeto, Encoding.UTF8, "application/json");
-                    var resposta = cliente.PostAsync(url, content);
-                    resposta.Wait();
-                    if (resposta.Result.IsSuccessStatusCode)
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(
+                        new MediaTypeWithQualityHeaderValue("application/json"));
+
+                    HttpResponseMessage respToken = client.PostAsync(
+                       URLApi + "Auth", new StringContent(
+                            JsonConvert.SerializeObject(new
+                            {
+                                Email = config.GetSection("API_Access:UserID").Value,
+                                PasswordHash = config.GetSection("API_Access:UserPWD").Value,
+                                AccessKey = config.GetSection("API_Access:AccessKey").Value
+                            }), Encoding.UTF8, "application/json")).Result;
+
+                    string conteudo =
+                        respToken.Content.ReadAsStringAsync().Result;
+                    Console.WriteLine(conteudo);
+
+                    if (respToken.StatusCode == HttpStatusCode.OK)
                     {
-                        var retorno = resposta.Result.Content.ReadAsStringAsync();
+                        TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
+                        if (token.Token != null)
+                        {
+                            client.DefaultRequestHeaders.Authorization =
+                                new AuthenticationHeaderValue("Bearer", token.Token);
+
+                            //Conteudo Inicio
+
+                            string jsonObjeto = JsonConvert.SerializeObject(Seguro);
+                            var content = new StringContent(jsonObjeto, Encoding.UTF8, "application/json");
+                            var resposta = client.PostAsync(url + "Seguro/", content);
+                            resposta.Wait();
+                            if (resposta.Result.IsSuccessStatusCode)
+                            {
+                                var retorno = resposta.Result.Content.ReadAsStringAsync();
+                            }
+
+                            //Conteudo Fim
+                        }
                     }
+
                 }
 
             }
@@ -171,18 +344,60 @@ namespace WebAppEdson.Controllers
             var Seguro = new Seguro();
 
             var url = URLApi;
-            HttpClient client = new HttpClient();
-            var response = client.GetAsync(url + id).Result;
 
-            if (response.IsSuccessStatusCode)
-            {
-                var results = response.Content.ReadAsStringAsync().Result;
+            // Envio da requisição a fim de autenticar
+            // e obter o token de acesso
+            var builder = new ConfigurationBuilder()
+             .SetBasePath(Directory.GetCurrentDirectory())
+             .AddJsonFile($"appsettings.json");
+            var config = builder.Build();
 
-                Seguro = JsonConvert.DeserializeObject<Seguro>(results);
-            }
-            if (Seguro == null)
+            using (var client = new HttpClient())
             {
-                return NotFound();
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage respToken = client.PostAsync(
+                   URLApi + "Auth", new StringContent(
+                        JsonConvert.SerializeObject(new
+                        {
+                            Email = config.GetSection("API_Access:UserID").Value,
+                            PasswordHash = config.GetSection("API_Access:UserPWD").Value,
+                            AccessKey = config.GetSection("API_Access:AccessKey").Value
+                        }), Encoding.UTF8, "application/json")).Result;
+
+                string conteudo =
+                    respToken.Content.ReadAsStringAsync().Result;
+                Console.WriteLine(conteudo);
+
+                if (respToken.StatusCode == HttpStatusCode.OK)
+                {
+                    TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
+                    if (token.Token != null)
+                    {
+                        client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Bearer", token.Token);
+
+                        //Conteudo Inicio
+
+                        var response = client.GetAsync(url + "Seguro/" + id).Result;
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var results = response.Content.ReadAsStringAsync().Result;
+
+                            Seguro = JsonConvert.DeserializeObject<Seguro>(results);
+                        }
+                        if (Seguro == null)
+                        {
+                            return NotFound();
+                        }
+
+                        //Conteudo Fim
+                    }
+                }
+
             }
             return View(Seguro);
         }
@@ -200,16 +415,55 @@ namespace WebAppEdson.Controllers
                 {
                     var url = URLApi;
 
-                    using (var cliente = new HttpClient())
+                    // Envio da requisição a fim de autenticar
+                    // e obter o token de acesso
+                    var builder = new ConfigurationBuilder()
+                     .SetBasePath(Directory.GetCurrentDirectory())
+                     .AddJsonFile($"appsettings.json");
+                    var config = builder.Build();
+
+                    using (var client = new HttpClient())
                     {
-                        string jsonObjeto = JsonConvert.SerializeObject(Seguro);
-                        var content = new StringContent(jsonObjeto, Encoding.UTF8, "application/json");
-                        var resposta = cliente.PutAsync(url, content);
-                        resposta.Wait();
-                        if (resposta.Result.IsSuccessStatusCode)
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.Accept.Add(
+                            new MediaTypeWithQualityHeaderValue("application/json"));
+
+                        HttpResponseMessage respToken = client.PostAsync(
+                           URLApi + "Auth", new StringContent(
+                                JsonConvert.SerializeObject(new
+                                {
+                                    Email = config.GetSection("API_Access:UserID").Value,
+                                    PasswordHash = config.GetSection("API_Access:UserPWD").Value,
+                                    AccessKey = config.GetSection("API_Access:AccessKey").Value
+                                }), Encoding.UTF8, "application/json")).Result;
+
+                        string conteudo =
+                            respToken.Content.ReadAsStringAsync().Result;
+                        Console.WriteLine(conteudo);
+
+                        if (respToken.StatusCode == HttpStatusCode.OK)
                         {
-                            var retorno = resposta.Result.Content.ReadAsStringAsync();
+                            TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
+                            if (token.Token != null)
+                            {
+                                client.DefaultRequestHeaders.Authorization =
+                                    new AuthenticationHeaderValue("Bearer", token.Token);
+
+                                //Conteudo Inicio
+
+                                string jsonObjeto = JsonConvert.SerializeObject(Seguro);
+                                var content = new StringContent(jsonObjeto, Encoding.UTF8, "application/json");
+                                var resposta = client.PutAsync(url + "Seguro/", content);
+                                resposta.Wait();
+                                if (resposta.Result.IsSuccessStatusCode)
+                                {
+                                    var retorno = resposta.Result.Content.ReadAsStringAsync();
+                                }
+
+                                //Conteudo Fim
+                            }
                         }
+
                     }
 
                 }
@@ -240,20 +494,61 @@ namespace WebAppEdson.Controllers
             var Seguro = new Seguro();
 
             var url = URLApi;
-            HttpClient client = new HttpClient();
-            var response = client.GetAsync(url + id).Result;
 
-            if (response.IsSuccessStatusCode)
+            // Envio da requisição a fim de autenticar
+            // e obter o token de acesso
+            var builder = new ConfigurationBuilder()
+             .SetBasePath(Directory.GetCurrentDirectory())
+             .AddJsonFile($"appsettings.json");
+            var config = builder.Build();
+
+            using (var client = new HttpClient())
             {
-                var results = response.Content.ReadAsStringAsync().Result;
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
 
-                Seguro = JsonConvert.DeserializeObject<Seguro>(results);
-            }
-            if (Seguro == null)
-            {
-                return NotFound();
-            }
+                HttpResponseMessage respToken = client.PostAsync(
+                   URLApi + "Auth", new StringContent(
+                        JsonConvert.SerializeObject(new
+                        {
+                            Email = config.GetSection("API_Access:UserID").Value,
+                            PasswordHash = config.GetSection("API_Access:UserPWD").Value,
+                            AccessKey = config.GetSection("API_Access:AccessKey").Value
+                        }), Encoding.UTF8, "application/json")).Result;
 
+                string conteudo =
+                    respToken.Content.ReadAsStringAsync().Result;
+                Console.WriteLine(conteudo);
+
+                if (respToken.StatusCode == HttpStatusCode.OK)
+                {
+                    TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
+                    if (token.Token != null)
+                    {
+                        client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Bearer", token.Token);
+
+                        //Conteudo Inicio
+
+                        var response = client.GetAsync(url + "Seguro/" + id).Result;
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var results = response.Content.ReadAsStringAsync().Result;
+
+                            Seguro = JsonConvert.DeserializeObject<Seguro>(results);
+                        }
+                        if (Seguro == null)
+                        {
+                            return NotFound();
+                        }
+
+                        //Conteudo Fim
+                    }
+                }
+
+            }
             return View(Seguro);
         }
 
@@ -263,14 +558,55 @@ namespace WebAppEdson.Controllers
         public IActionResult DeleteConfirmed(int id)
         {
             var url = URLApi;
-            HttpClient client = new HttpClient();
-            var response = client.DeleteAsync(url + id).Result;
 
-            if (response.IsSuccessStatusCode)
+            // Envio da requisição a fim de autenticar
+            // e obter o token de acesso
+            var builder = new ConfigurationBuilder()
+             .SetBasePath(Directory.GetCurrentDirectory())
+             .AddJsonFile($"appsettings.json");
+            var config = builder.Build();
+
+            using (var client = new HttpClient())
             {
-                var results = response.Content.ReadAsStringAsync().Result;
-            }
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
 
+                HttpResponseMessage respToken = client.PostAsync(
+                   URLApi + "Auth", new StringContent(
+                        JsonConvert.SerializeObject(new
+                        {
+                            Email = config.GetSection("API_Access:UserID").Value,
+                            PasswordHash = config.GetSection("API_Access:UserPWD").Value,
+                            AccessKey = config.GetSection("API_Access:AccessKey").Value
+                        }), Encoding.UTF8, "application/json")).Result;
+
+                string conteudo =
+                    respToken.Content.ReadAsStringAsync().Result;
+                Console.WriteLine(conteudo);
+
+                if (respToken.StatusCode == HttpStatusCode.OK)
+                {
+                    TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
+                    if (token.Token != null)
+                    {
+                        client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Bearer", token.Token);
+
+                        //Conteudo Inicio
+
+                        var response = client.DeleteAsync(url + "Seguro/" + id).Result;
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var results = response.Content.ReadAsStringAsync().Result;
+                        }
+
+                        //Conteudo Fim
+                    }
+                }
+
+            }
             return RedirectToAction(nameof(Index));
         }
 
@@ -279,18 +615,60 @@ namespace WebAppEdson.Controllers
             var Seguro = new List<Seguro>();
 
             var url = URLApi;
-            HttpClient client = new HttpClient();
-            var response = client.GetAsync(url + id).Result;
 
-            if (response.IsSuccessStatusCode)
-            {
-                var results = response.Content.ReadAsStringAsync().Result;
+            // Envio da requisição a fim de autenticar
+            // e obter o token de acesso
+            var builder = new ConfigurationBuilder()
+             .SetBasePath(Directory.GetCurrentDirectory())
+             .AddJsonFile($"appsettings.json");
+            var config = builder.Build();
 
-                Seguro = JsonConvert.DeserializeObject<Seguro[]>(results).ToList();
-            }
-            if (Seguro == null)
+            using (var client = new HttpClient())
             {
-                return true;
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage respToken = client.PostAsync(
+                   URLApi + "Auth", new StringContent(
+                        JsonConvert.SerializeObject(new
+                        {
+                            Email = config.GetSection("API_Access:UserID").Value,
+                            PasswordHash = config.GetSection("API_Access:UserPWD").Value,
+                            AccessKey = config.GetSection("API_Access:AccessKey").Value
+                        }), Encoding.UTF8, "application/json")).Result;
+
+                string conteudo =
+                    respToken.Content.ReadAsStringAsync().Result;
+                Console.WriteLine(conteudo);
+
+                if (respToken.StatusCode == HttpStatusCode.OK)
+                {
+                    TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
+                    if (token.Token != null)
+                    {
+                        client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Bearer", token.Token);
+
+                        //Conteudo Inicio
+
+                        var response = client.GetAsync(url + "Seguro/" + id).Result;
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var results = response.Content.ReadAsStringAsync().Result;
+
+                            Seguro = JsonConvert.DeserializeObject<Seguro[]>(results).ToList();
+                        }
+                        if (Seguro == null)
+                        {
+                            return true;
+                        }
+
+                        //Conteudo Fim
+                    }
+                }
+
             }
             return false;
         }
