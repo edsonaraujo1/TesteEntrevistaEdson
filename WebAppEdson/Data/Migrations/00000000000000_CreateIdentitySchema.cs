@@ -9,6 +9,28 @@ namespace WebAppEdson.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+               name: "Usuario",
+               columns: table => new
+               {
+                   Id = table.Column<int>(nullable: false)
+                       .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                   NomeUsuario = table.Column<string>(maxLength: 50, nullable: true),
+                   Email = table.Column<string>(maxLength: 100, nullable: false),
+                   PasswordHash = table.Column<string>(nullable: true),
+                   PasswordStamp = table.Column<string>(nullable: true),
+                   EmailConfirm = table.Column<bool>(maxLength: 1, nullable: false)
+               },
+               constraints: table =>
+               {
+                   table.PrimaryKey("PK_Usuario", x => x.Id);
+               });
+
+            migrationBuilder.InsertData(
+               table: "Usuario",
+               columns: new[] { "Id", "NomeUsuario", "Email", "PasswordHash", "PasswordStamp", "EmailConfirm" },
+               values: new object[] { 1, "admin@net.com", "admin@net.com", "123456", "123456", "1" });
+
+            migrationBuilder.CreateTable(
                name: "Seguro",
                columns: table => new
                {
@@ -20,8 +42,8 @@ namespace WebAppEdson.Data.Migrations
                    Veiculo = table.Column<string>(maxLength: 50, nullable: true),
                    Marca = table.Column<string>(maxLength: 50, nullable: true),
                    Modelo = table.Column<string>(maxLength: 50, nullable: true),
-                   ValorVeiculo = table.Column<float>(nullable: true),
-                   ValorSeguro = table.Column<float>(nullable: true)
+                   ValorVeiculo = table.Column<double>(nullable: true),
+                   ValorSeguro = table.Column<double>(nullable: true)
                },
                constraints: table =>
                {
@@ -233,6 +255,9 @@ namespace WebAppEdson.Data.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Usuario");
+
             migrationBuilder.DropTable(
                 name: "Seguro");
 

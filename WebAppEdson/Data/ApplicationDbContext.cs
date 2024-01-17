@@ -15,5 +15,7 @@ namespace WebAppEdson.Data
         }
 
         public DbSet<Seguro> Seguro { get; set; }
+
+        public DbSet<Usuario> Usuario { get; set; }
     }
 }

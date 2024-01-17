@@ -104,8 +104,7 @@ namespace WebAppEdson.Controllers
                             return View(Seguro);
                         }
                     }
-
-
+                   
                 }
                 return View(Seguro);
 
@@ -255,6 +254,10 @@ namespace WebAppEdson.Controllers
                         //Conteudo Fim
                     }
                 }
+                else
+                {
+                    ErrorViewModel.RError = "Erro ao Consultar o Resgistro!";
+                }
 
             }
             
@@ -325,6 +328,10 @@ namespace WebAppEdson.Controllers
 
                             //Conteudo Fim
                         }
+                    }
+                    else
+                    {
+                        ErrorViewModel.RError = "Erro ao Incluir o Resgistro!";
                     }
 
                 }
@@ -397,6 +404,10 @@ namespace WebAppEdson.Controllers
                         //Conteudo Fim
                     }
                 }
+                else
+                {
+                    ErrorViewModel.RError = "Erro ao Editar o Resgistro!";
+                }
 
             }
             return View(Seguro);
@@ -462,6 +473,10 @@ namespace WebAppEdson.Controllers
 
                                 //Conteudo Fim
                             }
+                        }
+                        else
+                        {
+                            ErrorViewModel.RError = "Erro ao Editar o Resgistro!";
                         }
 
                     }
@@ -547,6 +562,10 @@ namespace WebAppEdson.Controllers
                         //Conteudo Fim
                     }
                 }
+                else
+                {
+                    ErrorViewModel.RError = "Erro ao Excluir o Resgistro!";
+                }
 
             }
             return View(Seguro);
@@ -604,6 +623,10 @@ namespace WebAppEdson.Controllers
 
                         //Conteudo Fim
                     }
+                }
+                else
+                {
+                    ErrorViewModel.RError = "Erro ao Excluir o Resgistro!";
                 }
 
             }
