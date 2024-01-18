@@ -22,7 +22,7 @@ Servidor IIS<br>
 6 - Rodar a Aplicação em modo de Varios projetos Cmd (webApi) Cmd (webApp)<br>
 7 - No Console do Gerenciador de Pacotes entre com PM> Add-Migration 00000000000000_CreateIdentitySchema.cs ou pule direto para o passo 8<br>
 8 - Crie um novo usuário para que as tabelas possam ser geradas<br>
-<img src='https://i.postimg.cc/Js5M93qV/migration-01.png' border='0' width="400" height="400" alt='migration-01'/><br>
+<img src='https://i.postimg.cc/VdY4cT3k/migration-01.png' border='0' width="400" height="400" alt='migration-01'/><br>
 Após o termino será exibido como esta escrito a baixo<br>
 <img src='https://i.postimg.cc/GBjHr8kV/migration-02.png' border='0' width="400" height="400" alt='migration-02'/><br>
 
