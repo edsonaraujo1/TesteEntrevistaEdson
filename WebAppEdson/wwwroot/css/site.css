@@ -58,3 +58,8 @@ body {
 .jumbotron {
     padding: 1rem 2rem !important;
 }
+
+table tr > th,
+table tr > td {
+    white-space: nowrap;
+}
