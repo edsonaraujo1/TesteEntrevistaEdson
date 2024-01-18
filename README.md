@@ -24,7 +24,7 @@ Servidor IIS<br>
 8 - Crie um novo usuário para que as tabelas possam ser geradas<br>
 <img src='https://i.postimg.cc/FsS60Xp3/migration-01.png' border='0' alt='migration-01'/><br>
 Após o termino será exibido como esta escrito a baixo<br>
-<img src='https://i.postimg.cc/Z0VzfZR2/migration-02.png' border='0' alt='migration-02'/><br>
+<img src='https://i.postimg.cc/bNjYwwjy/migration-02.png' border='0' alt='migration-02'/><br>
 
 
 Ultima Atualização Habilitado Origem Cruzada Cors.
