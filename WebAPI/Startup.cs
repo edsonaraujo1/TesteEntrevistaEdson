@@ -14,6 +14,7 @@ using WebApi.Interfaces;
 using WebApi.Mappings;
 using WebApi.Repositories;
 using WebAPI.Context;
+using WebAPI.Infra.Services;
 using WebAPI.Interfaces;
 using WebAPI.Models;
 using WebAPI.Repositories;
@@ -32,6 +33,7 @@ namespace WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<IMailService, MailService>();
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", builder => builder
@@ -59,6 +61,8 @@ namespace WebApi
 
             services.AddScoped<ISeguroRepository, SeguroRepositories>();
             services.AddScoped<IUsuarioRepository, UsuarioRepositories>();
+            services.AddScoped<IContatoEmailRepository, ContatoEmailRepositories>();
+            services.AddScoped<IVisitaSistemasRepository, VisitaSistemasRepositories>();
             services.AddAutoMapper(typeof(EntitiesToDTOPaggingProfile));
 
             var key = Encoding.ASCII.GetBytes(Key.Secret);

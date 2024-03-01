@@ -1,18 +1,13 @@
+using Authentiction;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Rotativa.AspNetCore;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using WebAppEdson.Data;
 using WebAppEdson.Models;
@@ -49,69 +44,20 @@ namespace WebAppEdson.Controllers
 
             try
             {
-                var url = URLApi;
+                var authentiction = new AutenticarJWT(URLApi, "Seguro/");
+                var resultado = authentiction.Autenticar();
 
-                // Envio da requisição a fim de autenticar
-                // e obter o token de acesso
-                var builder = new ConfigurationBuilder()
-                 .SetBasePath(Directory.GetCurrentDirectory())
-                 .AddJsonFile($"appsettings.json");
-                var config = builder.Build();
+                Seguro = JsonConvert.DeserializeObject<Seguro[]>(resultado).ToList();
 
-                using (var client = new HttpClient())
+                if (!String.IsNullOrEmpty(busca))
                 {
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(
-                        new MediaTypeWithQualityHeaderValue("application/json"));
-
-                    HttpResponseMessage respToken = client.PostAsync(
-                       URLApi + "Auth", new StringContent(
-                            JsonConvert.SerializeObject(new
-                            {
-                                Email = config.GetSection("API_Access:UserID").Value,
-                                PasswordHash = config.GetSection("API_Access:UserPWD").Value,
-                                AccessKey = config.GetSection("API_Access:AccessKey").Value
-                            }), Encoding.UTF8, "application/json")).Result;
-
-                    string conteudo =
-                        respToken.Content.ReadAsStringAsync().Result;
-                    Console.WriteLine(conteudo);
-
-                    if (respToken.StatusCode == HttpStatusCode.OK)
-                    {
-                        TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
-                        if (token.Token != null)
-                        {
-                            // Associar o token aos headers do objeto
-                            // do tipo HttpClient
-                            client.DefaultRequestHeaders.Authorization =
-                                new AuthenticationHeaderValue("Bearer", token.Token);
-
-                            //HttpClient client = new HttpClient();
-                            var response = client.GetAsync(url + "Seguro/").Result;
-
-                            if (response.IsSuccessStatusCode)
-                            {
-                                var results = response.Content.ReadAsStringAsync().Result;
-
-                                Seguro = JsonConvert.DeserializeObject<Seguro[]>(results).ToList();
-                            }
-
-                            if (!String.IsNullOrEmpty(busca))
-                            {
-                                Seguro = Seguro.FindAll(i => i.Cliente.Contains(busca) || i.CPF.Contains(busca) || i.Veiculo.Contains(busca) || i.Marca.Contains(busca) || i.Modelo.Contains(busca));
-                            }
-                            return View(Seguro);
-                        }
-                    }
-                   
+                    Seguro = Seguro.FindAll(i => i.Cliente.Contains(busca) || i.CPF.Contains(busca) || i.Veiculo.Contains(busca) || i.Marca.Contains(busca) || i.Modelo.Contains(busca));
                 }
                 return View(Seguro);
-
             }
             catch (Exception ex)
             {
-                ViewData["error"] = ex.Message;
+                ViewData["error"] = "Ocorreu um Erro: " + ex.Message;
                 return View();
             }
 
@@ -123,69 +69,31 @@ namespace WebAppEdson.Controllers
         {
             string busca = Session.Busc_1;
             var Seguro = new List<Seguro>();
+            ErrorViewModel.Mensage = "";
 
-            var url = URLApi;
-
-            // Envio da requisição a fim de autenticar
-            // e obter o token de acesso
-            var builder = new ConfigurationBuilder()
-             .SetBasePath(Directory.GetCurrentDirectory())
-             .AddJsonFile($"appsettings.json");
-            var config = builder.Build();
-
-            using (var client = new HttpClient())
+            try
             {
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/json"));
+                var authentiction = new AutenticarJWT(URLApi, "Seguro/");
+                var resultado = authentiction.Autenticar();
 
-                HttpResponseMessage respToken = client.PostAsync(
-                   URLApi + "Auth", new StringContent(
-                        JsonConvert.SerializeObject(new
-                        {
-                            Email = config.GetSection("API_Access:UserID").Value,
-                            PasswordHash = config.GetSection("API_Access:UserPWD").Value,
-                            AccessKey = config.GetSection("API_Access:AccessKey").Value
-                        }), Encoding.UTF8, "application/json")).Result;
+                Seguro = JsonConvert.DeserializeObject<Seguro[]>(resultado).ToList();
 
-                string conteudo =
-                    respToken.Content.ReadAsStringAsync().Result;
-                Console.WriteLine(conteudo);
-
-                if (respToken.StatusCode == HttpStatusCode.OK)
+                if (!String.IsNullOrEmpty(busca))
                 {
-                    TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
-                    if (token.Token != null)
-                    {
-                        client.DefaultRequestHeaders.Authorization =
-                            new AuthenticationHeaderValue("Bearer", token.Token);
-
-                        //Conteudo Inicio
-
-                        var response = client.GetAsync(url + "Seguro/").Result;
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var results = response.Content.ReadAsStringAsync().Result;
-
-                            Seguro = JsonConvert.DeserializeObject<Seguro[]>(results).ToList();
-                        }
-
-                        if (!String.IsNullOrEmpty(busca))
-                        {
-                            Seguro = Seguro.FindAll(i => i.Cliente.Contains(busca) || i.CPF.Contains(busca) || i.Veiculo.Contains(busca) || i.Marca.Contains(busca) || i.Modelo.Contains(busca));
-                        }
-
-                        var pdf = new ViewAsPdf(Seguro);
-
-                        //Conteudo Fim
-                        return pdf;
-
-                    }
+                    Seguro = Seguro.FindAll(i => i.Cliente.Contains(busca) || i.CPF.Contains(busca) || i.Veiculo.Contains(busca) || i.Marca.Contains(busca) || i.Modelo.Contains(busca));
                 }
 
+                var pdf = new ViewAsPdf(Seguro);
+
+                return pdf;
+
             }
-            return Ok();
+            catch (Exception e)
+            {
+                ViewData["error"] = "Erro ao Consultar o Resgistro! " + e.Message;
+                ErrorViewModel.RError = "Erro ao Consultar o Resgistro!";
+                return View();
+            }
 
         }
 
@@ -197,71 +105,30 @@ namespace WebAppEdson.Controllers
                 return NotFound();
             }
 
-            var Seguro = new Seguro();
+            var seguro = new Seguro();
+            ErrorViewModel.Mensage = "";
 
-            var url = URLApi;
-
-            // Envio da requisição a fim de autenticar
-            // e obter o token de acesso
-            var builder = new ConfigurationBuilder()
-             .SetBasePath(Directory.GetCurrentDirectory())
-             .AddJsonFile($"appsettings.json");
-            var config = builder.Build();
-
-            using (var client = new HttpClient())
+            try
             {
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/json"));
+                var authentiction = new AutenticarJWT(URLApi, "Seguro/", id.ToString());
+                var resultado = authentiction.Autenticar();
 
-                HttpResponseMessage respToken = client.PostAsync(
-                   URLApi + "Auth", new StringContent(
-                        JsonConvert.SerializeObject(new
-                        {
-                            Email = config.GetSection("API_Access:UserID").Value,
-                            PasswordHash = config.GetSection("API_Access:UserPWD").Value,
-                            AccessKey = config.GetSection("API_Access:AccessKey").Value
-                        }), Encoding.UTF8, "application/json")).Result;
+                seguro = JsonConvert.DeserializeObject<Seguro>(resultado);
 
-                string conteudo =
-                    respToken.Content.ReadAsStringAsync().Result;
-                Console.WriteLine(conteudo);
-
-                if (respToken.StatusCode == HttpStatusCode.OK)
+                if (seguro == null)
                 {
-                    TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
-                    if (token.Token != null)
-                    {
-                        client.DefaultRequestHeaders.Authorization =
-                            new AuthenticationHeaderValue("Bearer", token.Token);
-
-                        //Conteudo Inicio
-
-                        var response = client.GetAsync(url + "Seguro/" + id).Result;
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var results = response.Content.ReadAsStringAsync().Result;
-
-                            Seguro = JsonConvert.DeserializeObject<Seguro>(results);
-                        }
-
-                        if (Seguro == null)
-                        {
-                            return NotFound();
-                        }
-
-                        //Conteudo Fim
-                    }
-                }
-                else
-                {
-                    ErrorViewModel.RError = "Erro ao Consultar o Resgistro!";
+                    return NotFound();
                 }
 
+                return View(seguro);
+            }
+            catch (Exception e)
+            {
+                ViewData["error"] = "Erro ao Consultar o Resgistro! " + e.Message;
+                ErrorViewModel.RError = "Erro ao Consultar o Resgistro!";
+                return View();
             }
             
-            return View(Seguro);
         }
 
         // GET: Seguro/Create
@@ -275,67 +142,13 @@ namespace WebAppEdson.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Seguro Seguro)
+        public IActionResult Create(Seguro seguro)
         {
             if (ModelState.IsValid)
             {
-                var url = URLApi;
-
-                // Envio da requisição a fim de autenticar
-                // e obter o token de acesso
-                var builder = new ConfigurationBuilder()
-                 .SetBasePath(Directory.GetCurrentDirectory())
-                 .AddJsonFile($"appsettings.json");
-                var config = builder.Build();
-
-                using (var client = new HttpClient())
-                {
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(
-                        new MediaTypeWithQualityHeaderValue("application/json"));
-
-                    HttpResponseMessage respToken = client.PostAsync(
-                       URLApi + "Auth", new StringContent(
-                            JsonConvert.SerializeObject(new
-                            {
-                                Email = config.GetSection("API_Access:UserID").Value,
-                                PasswordHash = config.GetSection("API_Access:UserPWD").Value,
-                                AccessKey = config.GetSection("API_Access:AccessKey").Value
-                            }), Encoding.UTF8, "application/json")).Result;
-
-                    string conteudo =
-                        respToken.Content.ReadAsStringAsync().Result;
-                    Console.WriteLine(conteudo);
-
-                    if (respToken.StatusCode == HttpStatusCode.OK)
-                    {
-                        TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
-                        if (token.Token != null)
-                        {
-                            client.DefaultRequestHeaders.Authorization =
-                                new AuthenticationHeaderValue("Bearer", token.Token);
-
-                            //Conteudo Inicio
-
-                            string jsonObjeto = JsonConvert.SerializeObject(Seguro);
-                            var content = new StringContent(jsonObjeto, Encoding.UTF8, "application/json");
-                            var resposta = client.PostAsync(url + "Seguro/", content);
-                            resposta.Wait();
-                            if (resposta.Result.IsSuccessStatusCode)
-                            {
-                                var retorno = resposta.Result.Content.ReadAsStringAsync();
-                            }
-
-                            //Conteudo Fim
-                        }
-                    }
-                    else
-                    {
-                        ErrorViewModel.RError = "Erro ao Incluir o Resgistro!";
-                    }
-
-                }
-
+                var authentiction = new AutenticarJWT(URLApi, "Seguro/");
+                var resultado = authentiction.AutenticarPost(seguro);
+                ErrorViewModel.Mensage = resultado;
             }
             return RedirectToAction(nameof(Index));
         }
@@ -348,69 +161,20 @@ namespace WebAppEdson.Controllers
                 return NotFound();
             }
 
-            var Seguro = new Seguro();
+            var seguro = new Seguro();
 
-            var url = URLApi;
+            var authentiction = new AutenticarJWT(URLApi, "Seguro/", id.ToString());
+            var resultado = authentiction.Autenticar();
+            ErrorViewModel.Mensage = resultado;
 
-            // Envio da requisição a fim de autenticar
-            // e obter o token de acesso
-            var builder = new ConfigurationBuilder()
-             .SetBasePath(Directory.GetCurrentDirectory())
-             .AddJsonFile($"appsettings.json");
-            var config = builder.Build();
+            seguro = JsonConvert.DeserializeObject<Seguro>(resultado);
 
-            using (var client = new HttpClient())
+            if (seguro == null)
             {
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/json"));
-
-                HttpResponseMessage respToken = client.PostAsync(
-                   URLApi + "Auth", new StringContent(
-                        JsonConvert.SerializeObject(new
-                        {
-                            Email = config.GetSection("API_Access:UserID").Value,
-                            PasswordHash = config.GetSection("API_Access:UserPWD").Value,
-                            AccessKey = config.GetSection("API_Access:AccessKey").Value
-                        }), Encoding.UTF8, "application/json")).Result;
-
-                string conteudo =
-                    respToken.Content.ReadAsStringAsync().Result;
-                Console.WriteLine(conteudo);
-
-                if (respToken.StatusCode == HttpStatusCode.OK)
-                {
-                    TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
-                    if (token.Token != null)
-                    {
-                        client.DefaultRequestHeaders.Authorization =
-                            new AuthenticationHeaderValue("Bearer", token.Token);
-
-                        //Conteudo Inicio
-
-                        var response = client.GetAsync(url + "Seguro/" + id).Result;
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var results = response.Content.ReadAsStringAsync().Result;
-
-                            Seguro = JsonConvert.DeserializeObject<Seguro>(results);
-                        }
-                        if (Seguro == null)
-                        {
-                            return NotFound();
-                        }
-
-                        //Conteudo Fim
-                    }
-                }
-                else
-                {
-                    ErrorViewModel.RError = "Erro ao Editar o Resgistro!";
-                }
-
+                return NotFound();
             }
-            return View(Seguro);
+
+            return View(seguro);
         }
 
         // POST: Seguro/Edit/5
@@ -418,73 +182,19 @@ namespace WebAppEdson.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Seguro Seguro)
+        public async Task<IActionResult> Edit(Seguro seguro)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var url = URLApi;
-
-                    // Envio da requisição a fim de autenticar
-                    // e obter o token de acesso
-                    var builder = new ConfigurationBuilder()
-                     .SetBasePath(Directory.GetCurrentDirectory())
-                     .AddJsonFile($"appsettings.json");
-                    var config = builder.Build();
-
-                    using (var client = new HttpClient())
-                    {
-                        client.DefaultRequestHeaders.Accept.Clear();
-                        client.DefaultRequestHeaders.Accept.Add(
-                            new MediaTypeWithQualityHeaderValue("application/json"));
-
-                        HttpResponseMessage respToken = client.PostAsync(
-                           URLApi + "Auth", new StringContent(
-                                JsonConvert.SerializeObject(new
-                                {
-                                    Email = config.GetSection("API_Access:UserID").Value,
-                                    PasswordHash = config.GetSection("API_Access:UserPWD").Value,
-                                    AccessKey = config.GetSection("API_Access:AccessKey").Value
-                                }), Encoding.UTF8, "application/json")).Result;
-
-                        string conteudo =
-                            respToken.Content.ReadAsStringAsync().Result;
-                        Console.WriteLine(conteudo);
-
-                        if (respToken.StatusCode == HttpStatusCode.OK)
-                        {
-                            TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
-                            if (token.Token != null)
-                            {
-                                client.DefaultRequestHeaders.Authorization =
-                                    new AuthenticationHeaderValue("Bearer", token.Token);
-
-                                //Conteudo Inicio
-
-                                string jsonObjeto = JsonConvert.SerializeObject(Seguro);
-                                var content = new StringContent(jsonObjeto, Encoding.UTF8, "application/json");
-                                var resposta = client.PutAsync(url + "Seguro/", content);
-                                resposta.Wait();
-                                if (resposta.Result.IsSuccessStatusCode)
-                                {
-                                    var retorno = resposta.Result.Content.ReadAsStringAsync();
-                                }
-
-                                //Conteudo Fim
-                            }
-                        }
-                        else
-                        {
-                            ErrorViewModel.RError = "Erro ao Editar o Resgistro!";
-                        }
-
-                    }
-
+                   var authentiction = new AutenticarJWT(URLApi, "Seguro/");
+                   var resultado = authentiction.AutenticarPut(seguro);
+                   ErrorViewModel.Mensage = resultado;
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SeguroExists(Seguro.id))
+                    if (!SeguroExists(seguro.id))
                     {
                         return NotFound();
                     }
@@ -506,69 +216,15 @@ namespace WebAppEdson.Controllers
                 return NotFound();
             }
 
-            var Seguro = new Seguro();
+            var seguro = new Seguro();
 
-            var url = URLApi;
+            var authentiction = new AutenticarJWT(URLApi, "Seguro/", id.ToString());
+            var resultado = authentiction.Autenticar();
+            ErrorViewModel.Mensage = resultado;
 
-            // Envio da requisição a fim de autenticar
-            // e obter o token de acesso
-            var builder = new ConfigurationBuilder()
-             .SetBasePath(Directory.GetCurrentDirectory())
-             .AddJsonFile($"appsettings.json");
-            var config = builder.Build();
+            seguro = JsonConvert.DeserializeObject<Seguro>(resultado);
 
-            using (var client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/json"));
-
-                HttpResponseMessage respToken = client.PostAsync(
-                   URLApi + "Auth", new StringContent(
-                        JsonConvert.SerializeObject(new
-                        {
-                            Email = config.GetSection("API_Access:UserID").Value,
-                            PasswordHash = config.GetSection("API_Access:UserPWD").Value,
-                            AccessKey = config.GetSection("API_Access:AccessKey").Value
-                        }), Encoding.UTF8, "application/json")).Result;
-
-                string conteudo =
-                    respToken.Content.ReadAsStringAsync().Result;
-                Console.WriteLine(conteudo);
-
-                if (respToken.StatusCode == HttpStatusCode.OK)
-                {
-                    TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
-                    if (token.Token != null)
-                    {
-                        client.DefaultRequestHeaders.Authorization =
-                            new AuthenticationHeaderValue("Bearer", token.Token);
-
-                        //Conteudo Inicio
-
-                        var response = client.GetAsync(url + "Seguro/" + id).Result;
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var results = response.Content.ReadAsStringAsync().Result;
-
-                            Seguro = JsonConvert.DeserializeObject<Seguro>(results);
-                        }
-                        if (Seguro == null)
-                        {
-                            return NotFound();
-                        }
-
-                        //Conteudo Fim
-                    }
-                }
-                else
-                {
-                    ErrorViewModel.RError = "Erro ao Excluir o Resgistro!";
-                }
-
-            }
-            return View(Seguro);
+            return View(seguro);
         }
 
         // POST: Seguro/Delete/5
@@ -576,123 +232,27 @@ namespace WebAppEdson.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var url = URLApi;
-
-            // Envio da requisição a fim de autenticar
-            // e obter o token de acesso
-            var builder = new ConfigurationBuilder()
-             .SetBasePath(Directory.GetCurrentDirectory())
-             .AddJsonFile($"appsettings.json");
-            var config = builder.Build();
-
-            using (var client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/json"));
-
-                HttpResponseMessage respToken = client.PostAsync(
-                   URLApi + "Auth", new StringContent(
-                        JsonConvert.SerializeObject(new
-                        {
-                            Email = config.GetSection("API_Access:UserID").Value,
-                            PasswordHash = config.GetSection("API_Access:UserPWD").Value,
-                            AccessKey = config.GetSection("API_Access:AccessKey").Value
-                        }), Encoding.UTF8, "application/json")).Result;
-
-                string conteudo =
-                    respToken.Content.ReadAsStringAsync().Result;
-                Console.WriteLine(conteudo);
-
-                if (respToken.StatusCode == HttpStatusCode.OK)
-                {
-                    TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
-                    if (token.Token != null)
-                    {
-                        client.DefaultRequestHeaders.Authorization =
-                            new AuthenticationHeaderValue("Bearer", token.Token);
-
-                        //Conteudo Inicio
-
-                        var response = client.DeleteAsync(url + "Seguro/" + id).Result;
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var results = response.Content.ReadAsStringAsync().Result;
-                        }
-
-                        //Conteudo Fim
-                    }
-                }
-                else
-                {
-                    ErrorViewModel.RError = "Erro ao Excluir o Resgistro!";
-                }
-
-            }
+            var authentiction = new AutenticarJWT(URLApi, "Seguro/", id.ToString());
+            var resultado = authentiction.AutenticarDel();
+            ErrorViewModel.Mensage = resultado;
+                        
             return RedirectToAction(nameof(Index));
         }
 
         private bool SeguroExists(int id)
         {
-            var Seguro = new List<Seguro>();
+            var seguro = new List<Seguro>();
 
-            var url = URLApi;
+            var authentiction = new AutenticarJWT(URLApi, "Seguro/", id.ToString());
+            var resultado = authentiction.Autenticar();
 
-            // Envio da requisição a fim de autenticar
-            // e obter o token de acesso
-            var builder = new ConfigurationBuilder()
-             .SetBasePath(Directory.GetCurrentDirectory())
-             .AddJsonFile($"appsettings.json");
-            var config = builder.Build();
+            seguro = JsonConvert.DeserializeObject<Seguro[]>(resultado).ToList();
 
-            using (var client = new HttpClient())
+            if (seguro == null)
             {
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/json"));
-
-                HttpResponseMessage respToken = client.PostAsync(
-                   URLApi + "Auth", new StringContent(
-                        JsonConvert.SerializeObject(new
-                        {
-                            Email = config.GetSection("API_Access:UserID").Value,
-                            PasswordHash = config.GetSection("API_Access:UserPWD").Value,
-                            AccessKey = config.GetSection("API_Access:AccessKey").Value
-                        }), Encoding.UTF8, "application/json")).Result;
-
-                string conteudo =
-                    respToken.Content.ReadAsStringAsync().Result;
-                Console.WriteLine(conteudo);
-
-                if (respToken.StatusCode == HttpStatusCode.OK)
-                {
-                    TokenID token = JsonConvert.DeserializeObject<TokenID>(conteudo);
-                    if (token.Token != null)
-                    {
-                        client.DefaultRequestHeaders.Authorization =
-                            new AuthenticationHeaderValue("Bearer", token.Token);
-
-                        //Conteudo Inicio
-
-                        var response = client.GetAsync(url + "Seguro/" + id).Result;
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var results = response.Content.ReadAsStringAsync().Result;
-
-                            Seguro = JsonConvert.DeserializeObject<Seguro[]>(results).ToList();
-                        }
-                        if (Seguro == null)
-                        {
-                            return true;
-                        }
-
-                        //Conteudo Fim
-                    }
-                }
-
+                return true;
             }
+
             return false;
         }
 

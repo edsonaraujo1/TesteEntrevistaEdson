@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using WebAppEdson.Models;
 
 namespace WebAppEdson.Data
@@ -17,5 +14,7 @@ namespace WebAppEdson.Data
         public DbSet<Seguro> Seguro { get; set; }
 
         public DbSet<Usuario> Usuario { get; set; }
+
+        public DbSet<ContatoEmail> ContatoEmails { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Authentiction;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,6 @@ namespace WebAPI.Controllers
     [EnableCors("CorsPolicy")]
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class UsuarioController : Controller
     {
         private readonly IUsuarioRepository _usuarioRepositories;
@@ -24,10 +24,17 @@ namespace WebAPI.Controllers
             _mapper = mapper;
             _usuarioRepositories = usuarioRepositories;
         }
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
-            return Ok(await _usuarioRepositories.SelecionarTodos());
+            var usuario = await _usuarioRepositories.SelecionarTodos();
+            if (usuario == null)
+            {
+                return NotFound("Nenhum Registro não encontrdo!");
+            }
+
+            return Ok(usuario);
         }
         [HttpPost("Register")]
         public async Task<ActionResult> CadastrarUsuario(Usuario usuario)
@@ -38,21 +45,49 @@ namespace WebAPI.Controllers
                 return NotFound("Email já Cadastrado!");
             }
 
-            _usuarioRepositories.Incluir(usuario);
-            if (await _usuarioRepositories.SaveAllAsync())
+            var authentiction = new AutenticarJWT(null, null, null, usuario.PasswordHash.ToString());
+            var resultado = authentiction.Criptografar();
+
+            usuario.PasswordHash = resultado;
+            usuario.PasswordStamp = "string";
+
+            try
             {
-                return Ok("Registro Salvo com sucesso!");
+                _usuarioRepositories.Incluir(usuario);
+                if (await _usuarioRepositories.SaveAllAsync())
+                {
+                    return Ok(new
+                    {
+                        StatusCode = "OK",
+                        Mensage = "Registro Salvo com sucesso!"
+
+                    });
+                    
+                }
+
+            }
+            catch (System.Exception e)
+            {
+
+                throw e;
             }
             return BadRequest("Ocorreu um erro ao salvar registro.");
         }
+        [Authorize]
         [HttpPut]
         public async Task<ActionResult> AlterarUsuario(Usuario usuario)
         {
             var ret = await _usuarioRepositories.UserExists(usuario.Email);
-            if (ret != null)
+            if (ret == null)
             {
                 return NotFound("Email Invalido!!");
             }
+
+            var authentiction = new AutenticarJWT(null, null, null, usuario.PasswordHash.ToString());
+            var resultado = authentiction.Criptografar();
+
+            usuario.PasswordHash = resultado;
+
             _usuarioRepositories.Alterar(usuario);
             if (await _usuarioRepositories.SaveAllAsync())
             {
@@ -60,6 +95,7 @@ namespace WebAPI.Controllers
             }
             return BadRequest("Ocorreu um erro ao alterar registro.");
         }
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<ActionResult> ExcluirUsuario(int id)
         {
@@ -75,6 +111,7 @@ namespace WebAPI.Controllers
             }
             return BadRequest("Ocorreu um erro ao excluir o registro.");
         }
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult> SelecionarUsuario(int id)
         {
@@ -83,6 +120,12 @@ namespace WebAPI.Controllers
             {
                 return NotFound("Registro não encontrdo!");
             }
+
+            var authentiction = new AutenticarJWT(null, null, null, usuario.PasswordHash.ToString());
+            var resultado = authentiction.Descriptografar();
+
+            usuario.PasswordHash = resultado;
+
             UsuarioDTO usuarioDTO = new UsuarioDTO
             {
                 Id = usuario.Id,
@@ -90,7 +133,7 @@ namespace WebAPI.Controllers
                 Email = usuario.Email
             };
 
-            return Ok(usuarioDTO);
+            return Ok(usuario);
         }
 
     }

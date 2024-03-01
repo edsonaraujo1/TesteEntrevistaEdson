@@ -14,5 +14,12 @@ namespace WebAppEdson.Models
             get { return m_RError; }
             set { m_RError = value; }
         }
+
+        private static string m_Mensage = "";
+        public static string Mensage
+        {
+            get { return m_Mensage; }
+            set { m_Mensage = value; }
+        }
     }
 }

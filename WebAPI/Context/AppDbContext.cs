@@ -15,6 +15,8 @@ namespace WebAPI.Context
 
         public DbSet<Seguro> Seguros { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<ContatoEmail> ContatoEmails { get; set; }
+        public DbSet<VisitaSistemas> VisitaSistemas { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

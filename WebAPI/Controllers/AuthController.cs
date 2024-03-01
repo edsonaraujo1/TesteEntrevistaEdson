@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Authentiction;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -26,7 +27,10 @@ namespace WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Auth([FromBody] Usuario request)
         {
-            var ret = await _usuarioRepositories.SelecionarEmail(request.Email, request.PasswordHash);
+            var authentiction = new AutenticarJWT(null, null, null, request.PasswordHash);
+            var resultado = authentiction.Criptografar();
+
+            var ret = await _usuarioRepositories.SelecionarEmail(request.Email, resultado);
             if (ret == null)
             {
                 return NotFound("Usuário ou Senha Invalidos.!!!");
@@ -54,7 +58,10 @@ namespace WebAPI.Controllers
 
                 return Ok(new
                 {
-                    token = new JwtSecurityTokenHandler().WriteToken(token)
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    nome = ret.NomeUsuario,
+                    user = ret.Email,
+                    expira = DateTime.Now.AddMinutes(30)
                 });
             }
             return BadRequest("Usuário ou Senha Incorretas!!");

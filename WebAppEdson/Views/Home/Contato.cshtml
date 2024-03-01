@@ -1,0 +1,65 @@
+﻿
+@{
+    ViewData["Title"] = "Contato";
+}
+
+<h1>Contato</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <section>
+            <div class="con-form">
+                <form id="form-api">
+                    <div class="col-md-12 form-group">
+                        <input type="text" name="nome" placeholder="Nome Completo" class="form-control">
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <input type="text" name="email" placeholder="Digite seu Email" class="form-control">
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <input type="text" name="assunto" placeholder="digite o Assunto" class="form-control">
+                    </div>
+                    <div class="col-md-12 form-group"><textarea name="mensagem" placeholder="Escreva sua Mensagem" style="height: 138px;width: 100%;"></textarea></div>
+                    <div class="col-md-12 sub-but"><button type="submit" class="btn btn-primary" role="button">Enviar</button></div>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>
+<Script>
+    const formEl = document.getElementById('form-api')
+    formEl.addEventListener('submit', evento => {
+        evento.preventDefault();
+        const formData = new FormData(formEl);
+        const data = Object.fromEntries(formData);
+
+        fetch('https://localhost:44386/api/ContatoEmail/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        }).then(res => res.json()).then(data => console.log(data))
+       
+    });
+
+    function checarVisita() {
+
+        const update = {
+            
+            sistema: 'TesteEntrevistaEdson'
+        };
+
+        fetch('https://localhost:44386/api/VisitaSistemas/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(update)
+        }).then(res => res.json()).then(data => console.log(update))
+
+    }
+
+    checarVisita();
+</Script>
+

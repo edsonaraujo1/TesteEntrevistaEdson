@@ -5,7 +5,9 @@
     double entrada = 0;
     double saida = 0;
     double saldo = 0;
-    CultureInfo br = new CultureInfo("pt-BR");}
+    CultureInfo br = new CultureInfo("pt-BR");
+
+    }
 
 <h1>Cadastro de Seguro</h1>
 
@@ -14,11 +16,16 @@
 </p>
 @if (!String.IsNullOrEmpty(ErrorViewModel.RError.ToString()))
 {
-<div class="alert alert-danger" role="alert">
-    @ErrorViewModel.RError.ToString().
-</div>
+    <div class="alert alert-danger" role="alert">
+        @ErrorViewModel.RError.ToString().
+    </div>
 }
-
+@if (!String.IsNullOrEmpty(ErrorViewModel.Mensage.ToString()))
+{
+    <div class="alert alert-success" role="alert">
+        @ErrorViewModel.Mensage.ToString()
+    </div>
+}
 
 <div class="jumbotron" style="padding: 1rem 2rem;">
     <form method="GET" asp-action="Index">
